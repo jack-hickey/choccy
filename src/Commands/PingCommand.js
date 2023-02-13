@@ -5,7 +5,7 @@ export class PingCommand extends Command {
         super('ping', 'Standard ping');
     }
 
-    Action() {
-        console.log('hello');
+    Action(interaction) {
+        interaction.reply("Pong");
     }
 }

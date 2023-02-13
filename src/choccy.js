@@ -6,6 +6,7 @@ export class Choccy {
         this.onInteractionCreate = this.onInteractionCreate.bind(this);
 
         this.Commands = Object.values(Commands).map(command => new command());
+        this.ClientID = '1014536625423908996';
 
         this.Initialize();
     }
@@ -22,11 +23,27 @@ export class Choccy {
 
         client.on('interactionCreate', this.onInteractionCreate);
         client.login(process.env.BOT_TOKEN);
+
+        const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+
+        (async () => {
+            try {
+                await rest.put(
+                    Routes.applicationCommands(this.ClientID),
+                    { body: this.Commands.map(command => command.GetBoilerplate()) }
+                );
+            } catch (error) {
+                console.error(error);
+            }
+        })();
     }
 
     async onInteractionCreate(interaction) {
-        if (!interaction.isChatInputCommand()) { return; }
+        const command = this.Commands.find(x => x.Name === interaction?.commandName);
 
-        interaction.reply('Command received');
+        if (!interaction.isChatInputCommand()) { return; }
+        if (!command) { return; }
+
+        command.Action(interaction);
     }
 }
