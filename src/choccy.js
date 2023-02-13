@@ -1,4 +1,4 @@
-import { Client, IntentsBitField, REST, Routes } from 'discord.js';
+import { Client, IntentsBitField, REST, Routes, Events } from 'discord.js';
 import * as Commands from './Commands/exports/index.js';
 
 export class Choccy {
@@ -7,8 +7,6 @@ export class Choccy {
 
         this.Commands = Object.values(Commands).map(command => new command());
         this.ClientID = '1014536625423908996';
-
-        this.Initialize();
     }
 
     Initialize() {
@@ -21,7 +19,7 @@ export class Choccy {
             ]
         });
 
-        client.on('interactionCreate', this.onInteractionCreate);
+        client.on(Events.InteractionCreate, this.onInteractionCreate);
         client.login(process.env.BOT_TOKEN);
 
         const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
