@@ -2,7 +2,7 @@
   "name": "choccy",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/choccy.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/jack-hickey/choccy/issues"
   },
-  "homepage": "https://github.com/jack-hickey/choccy#readme"
+  "homepage": "https://github.com/jack-hickey/choccy#readme",
+  "dependencies": {
+    "discord.js": "^14.7.1"
+  }
 }
