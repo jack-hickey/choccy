@@ -4,8 +4,12 @@
   "type": "module",
   "description": "",
   "main": "src/index.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
