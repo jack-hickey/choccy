@@ -1,16 +1,16 @@
 import { Client, IntentsBitField, REST, Routes, Events } from 'discord.js';
+import Enmap from 'enmap';
 import * as Commands from './Commands/exports/index.js';
 
 export class Choccy {
     constructor() {
         this.onInteractionCreate = this.onInteractionCreate.bind(this);
+        this.onGuildDelete = this.onGuildDelete.bind(this);
 
         this.Commands = Object.values(Commands).map(command => new command());
         this.ClientID = '1014536625423908996';
-    }
 
-    Initialize() {
-        const client = new Client({
+        this.Client = new Client({
             intents: [
                 IntentsBitField.Flags.Guilds,
                 IntentsBitField.Flags.GuildMembers,
@@ -18,12 +18,24 @@ export class Choccy {
                 IntentsBitField.Flags.MessageContent
             ]
         });
+    }
 
-        client.on(Events.InteractionCreate, this.onInteractionCreate);
-        client.login(process.env.BOT_TOKEN);
+    Initialize() {
+        // Register enmap storage
+        this.Client.settings = new Enmap({
+            name: 'settings',
+            fetchAll: false,
+            autoFetch: true,
+            cloneLevel: 'deep'
+        });
+
+        this.Client.on(Events.InteractionCreate, this.onInteractionCreate);
+        this.Client.on(Events.GuildDelete, this.onGuildDelete);
+
+        this.Client.login(process.env.BOT_TOKEN);
 
         // Register slash commands
-        this.GetGuildID(client).then(guildID => {
+        this.GetGuildID(this.Client).then(guildID => {
             const rest = new REST().setToken(process.env.BOT_TOKEN);
 
             (async () => {
@@ -39,18 +51,24 @@ export class Choccy {
         });
     }
 
+    GetGuildID(client) {
+        return (process.env.NODE_ENV || 'development').toLowerCase() === 'production'
+            ? client.guilds.fetch()
+            : new Promise(resolve => resolve('822900454714376212'));
+    }
+
+    // Event shit
     async onInteractionCreate(interaction) {
         const command = this.Commands.find(x => x.Name === interaction?.commandName);
 
         if (!interaction.isChatInputCommand()) { return; }
         if (!command) { return; }
 
-        command.Action(interaction);
+        command.Action(interaction, this.Client);
     }
 
-    GetGuildID(client) {
-        return (process.env.NODE_ENV || 'development').toLowerCase() === 'production'
-            ? client.guilds.fetch()
-            : new Promise(resolve => resolve('822900454714376212'));
+    // Raised when the bot is kicked or leaves
+    async onGuildDelete(guild) {
+        this.Client.settings.delete(guild.id);
     }
 }

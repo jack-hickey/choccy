@@ -1,7 +1,12 @@
-import { SlashCommandChannelOption, SlashCommandSubcommandBuilder } from "discord.js";
+import { Settings } from "../Constants/Settings.js";
 import { Command } from "./exports/command.js";
 
 export class FreeGameChannelCommand extends Command {
+    static SubCommands = {
+        Channel: 'channel',
+        Config: 'config'
+    };
+
     constructor() {
         super('freegames', 'Set the channel for free games to appear in');
     }
@@ -11,23 +16,46 @@ export class FreeGameChannelCommand extends Command {
 
         builder.addSubcommand(
             options => options
-                .setName('channel')
+                .setName(FreeGameChannelCommand.SubCommands.Channel)
                 .setDescription('The channel to post free games to')
                 .addChannelOption(channel => channel
-                    .setName('channel')
+                    .setName(FreeGameChannelCommand.SubCommands.Channel)
                     .setDescription('Input channel'))
+        );
+
+        builder.addSubcommand(
+            options => options
+                .setName(FreeGameChannelCommand.SubCommands.Config)
+                .setDescription("Get configuration settings for Choccy's freegames feature")
         );
 
         return builder;
     }
 
-    Action(interaction) {
-        const channel = interaction.options.getChannel('channel');
+    Action(interaction, client) {
+        switch (interaction.options.getSubcommand()) {
+            case FreeGameChannelCommand.SubCommands.Channel: return this.SetChannel(interaction, client);
+            case FreeGameChannelCommand.SubCommands.Config: return this.DisplayConfig(interaction, client);
+        }
+    }
+
+    SetChannel(interaction, client) {
+        const channel = interaction.options.getChannel('channel') ?? Settings.DefaultValue;
+
+        client.settings.set(interaction.guildId, channel.id, Settings.FreeGamesChannel);
 
         interaction.reply(
-            channel
+            channel !== Settings.DefaultValue
                 ? `Free games channel set to ${channel}`
-                : "Free games channel removed"
+                : 'Free games channel removed'
         );
+    }
+
+    DisplayConfig(interaction, client) {
+        const channel = client.settings.getValue(interaction.guildId, Settings.FreeGamesChannel);
+
+        interaction.reply(channel === Settings.DefaultValue
+            ? 'Choccy has not been configured to post free games. Please use **/freegames channel** to do this'
+            : `Choccy is configured to send free games to <#${channel}>`);
     }
 }

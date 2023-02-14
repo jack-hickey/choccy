@@ -14,5 +14,5 @@ export class Command {
         return builder;
     }
 
-    Action() { }
+    Action(interaction) { }
 }
