@@ -1,12 +1,10 @@
 import { Client, IntentsBitField, REST, Routes, Events } from 'discord.js';
 import Enmap from 'enmap';
 import * as Commands from './Commands/exports/index.js';
+import { RedditEngine } from './Reddit/RedditEngine.js';
 
 export class Choccy {
     constructor() {
-        this.onInteractionCreate = this.onInteractionCreate.bind(this);
-        this.onGuildDelete = this.onGuildDelete.bind(this);
-
         this.Commands = Object.values(Commands).map(command => new command());
         this.ClientID = '1014536625423908996';
 
@@ -18,6 +16,8 @@ export class Choccy {
                 IntentsBitField.Flags.MessageContent
             ]
         });
+
+        this.RedditAPI = new RedditEngine();
     }
 
     Initialize() {
@@ -29,32 +29,35 @@ export class Choccy {
             cloneLevel: 'deep'
         });
 
-        this.Client.on(Events.InteractionCreate, this.onInteractionCreate);
-        this.Client.on(Events.GuildDelete, this.onGuildDelete);
+        this.Client.on(Events.InteractionCreate, async interaction => this.onInteractionCreate(interaction));
+        this.Client.on(Events.GuildDelete, async guild => this.onGuildDelete(guild));
 
         this.Client.login(process.env.BOT_TOKEN);
 
-        // Register slash commands
-        this.GetGuildID(this.Client).then(guildID => {
-            const rest = new REST().setToken(process.env.BOT_TOKEN);
+        setTimeout(async () => this.PollFreeGame(), 60000);
 
-            (async () => {
-                try {
-                    await rest.put(
-                        Routes.applicationGuildCommands(this.ClientID, guildID),
-                        { body: this.Commands.map(command => command.GetBuilder().toJSON()) }
-                    );
-                } catch (error) {
-                    console.error(error);
-                }
-            })();
-        });
+        this.RegisterSlashCommands();
     }
 
-    GetGuildID(client) {
-        return (process.env.NODE_ENV || 'development').toLowerCase() === 'production'
-            ? client.guilds.fetch()
-            : new Promise(resolve => resolve('822900454714376212'));
+    async PollFreeGame() {
+        this.Client.guilds
+    }
+
+    RegisterSlashCommands() {
+        const rest = new REST().setToken(process.env.BOT_TOKEN);
+
+        (async () => {
+            try {
+                await rest.put(
+                    (process.env.NODE_ENV || 'development').toLowerCase() === 'production'
+                        ? Routes.applicationCommands()
+                        : Routes.applicationGuildCommands(this.ClientID, '822900454714376212'),
+                    { body: this.Commands.map(command => command.GetBuilder().toJSON()) }
+                );
+            } catch (error) {
+                console.error(error);
+            }
+        })();
     }
 
     // Event shit
