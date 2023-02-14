@@ -6,10 +6,12 @@ export class Command {
         this.Description = description;
     }
 
-    GetBoilerplate() {
-        return new SlashCommandBuilder()
+    GetBuilder() {
+        const builder = new SlashCommandBuilder()
             .setName(this.Name)
-            .setDescription(this.Description).toJSON();
+            .setDescription(this.Description);
+
+        return builder;
     }
 
     Action() { }

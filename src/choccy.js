@@ -30,7 +30,7 @@ export class Choccy {
                 try {
                     await rest.put(
                         Routes.applicationGuildCommands(this.ClientID, guildID),
-                        { body: this.Commands.map(command => command.GetBoilerplate()) }
+                        { body: this.Commands.map(command => command.GetBuilder().toJSON()) }
                     );
                 } catch (error) {
                     console.error(error);
