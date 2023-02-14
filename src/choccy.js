@@ -22,18 +22,21 @@ export class Choccy {
         client.on(Events.InteractionCreate, this.onInteractionCreate);
         client.login(process.env.BOT_TOKEN);
 
-        const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+        // Register slash commands
+        this.GetGuildID(client).then(guildID => {
+            const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
 
-        (async () => {
-            try {
-                await rest.put(
-                    Routes.applicationCommands(this.ClientID),
-                    { body: this.Commands.map(command => command.GetBoilerplate()) }
-                );
-            } catch (error) {
-                console.error(error);
-            }
-        })();
+            (async () => {
+                try {
+                    await rest.put(
+                        Routes.applicationGuildCommands(this.ClientID, guildID),
+                        { body: this.Commands.map(command => command.GetBoilerplate()) }
+                    );
+                } catch (error) {
+                    console.error(error);
+                }
+            })();
+        });
     }
 
     async onInteractionCreate(interaction) {
@@ -43,5 +46,11 @@ export class Choccy {
         if (!command) { return; }
 
         command.Action(interaction);
+    }
+
+    GetGuildID(client) {
+        return (process.env.NODE_ENV || 'development').toLowerCase() === 'production'
+            ? client.guilds.fetch()
+            : new Promise(resolve => resolve('822900454714376212'));
     }
 }
