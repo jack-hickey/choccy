@@ -24,7 +24,7 @@ export class Choccy {
 
         // Register slash commands
         this.GetGuildID(client).then(guildID => {
-            const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+            const rest = new REST().setToken(process.env.BOT_TOKEN);
 
             (async () => {
                 try {
