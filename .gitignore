@@ -106,3 +106,5 @@ dist
 # Published ZIP data
 publish/
 .DS_Store
+
+data/

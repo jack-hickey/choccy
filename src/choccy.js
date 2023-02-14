@@ -1,12 +1,17 @@
-import { Client, IntentsBitField, REST, Routes, Events } from 'discord.js';
+import { Client, IntentsBitField, REST, Routes, Events, Collection } from 'discord.js';
 import Enmap from 'enmap';
 import * as Commands from './Commands/exports/index.js';
+import { BotConfiguration } from './Constants/BotConfiguration.js';
+import { Settings } from './Constants/Settings.js';
 import { RedditEngine } from './Reddit/RedditEngine.js';
 
 export class Choccy {
     constructor() {
         this.Commands = Object.values(Commands).map(command => new command());
+
+
         this.ClientID = '1014536625423908996';
+        this.LastFreeGame = '';
 
         this.Client = new Client({
             intents: [
@@ -34,13 +39,22 @@ export class Choccy {
 
         this.Client.login(process.env.BOT_TOKEN);
 
-        setTimeout(async () => this.PollFreeGame(), 60000);
+        setInterval(async () => this.PollFreeGame(), BotConfiguration.FreeGameDelay * 1000);
 
         this.RegisterSlashCommands();
     }
 
     async PollFreeGame() {
-        this.Client.guilds
+        const availableGuilds = (await this.Client.guilds.fetch())
+            .filter(guild => this.Client.settings.getValue(guild.id, Settings.FreeGamesChannel) !== Settings.DefaultValue);
+
+        if (availableGuilds.size) {
+            this.RedditAPI.GetLatestPost('freegamefindings', this.LastFreeGame).then(post => {
+                if (post) {
+                    this.LastFreeGame = post.Name;
+                }
+            });
+        }
     }
 
     RegisterSlashCommands() {
