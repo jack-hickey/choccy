@@ -1,4 +1,4 @@
-import { Link } from "./Link.js";
+import { Post } from "./Post.js";
 
 export class RedditEngine {
     constructor() {
@@ -11,6 +11,6 @@ export class RedditEngine {
         const data = (await (await fetch(`${this.FetchPrefix}/${subreddit}/new.json?before=${before}&type=link`))
             .json())?.data?.children;
 
-        return (data ??= []).map(post => new Link(post.data));
+        return (data ??= []).map(post => new Post(post.data));
     }
 }

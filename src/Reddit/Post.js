@@ -1,6 +1,6 @@
 import { RedditRoot } from "./RedditRoot.js";
 
-export class Link extends RedditRoot {
+export class Post extends RedditRoot {
     constructor(json) {
         super(json);
 
