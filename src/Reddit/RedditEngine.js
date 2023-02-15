@@ -6,6 +6,7 @@ export class RedditEngine {
     }
 
     async GetPosts(subreddit, before) {
+        before = '';
         const data = (await (await fetch(`${this.FetchPrefix}/${subreddit}/new.json?before=${before}&type=link`))
             .json())?.data?.children;
 

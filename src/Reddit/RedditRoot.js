@@ -16,4 +16,18 @@ export class RedditRoot {
             }
         });
     }
+
+    GetPopulatedProperties() {
+        const populated = {};
+
+        Object.keys(this).forEach(key => {
+            const value = this[key];
+
+            if (value !== null && value !== undefined) {
+                populated[key] = value;
+            }
+        });
+
+        return populated;
+    }
 }

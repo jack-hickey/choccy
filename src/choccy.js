@@ -3,6 +3,7 @@ import Enmap from 'enmap';
 import * as Commands from './Commands/exports/index.js';
 import { BotConfiguration } from './Constants/BotConfiguration.js';
 import { Settings } from './Constants/Settings.js';
+import { FreeGame } from './Reddit/FreeGame.js';
 import { RedditEngine } from './Reddit/RedditEngine.js';
 
 export class Choccy {
@@ -51,23 +52,16 @@ export class Choccy {
 
         if (availableGuilds.length) {
             this.RedditAPI.GetPosts(BotConfiguration.FreeGameSetup.Subreddits.join('+'), this.LastFreeGame).then(post => {
-                const valid = post.find(x => this.IsValidFreeGame(x));
+                const valid = post.map(x => new FreeGame(x)).find(x => x.IsValid());
 
                 if (valid) {
-                    this.LastFreeGame = valid.Name;
+                    this.LastFreeGame = valid.Post.Name;
 
-                    availableGuilds.forEach(
-                        async info => await this.SendMessage(info.guild.id, info.channel, { embeds: [this.GetFreeGameEmbed(valid)] }));
+                    availableGuilds.forEach(async info => await this.SendMessage(info.guild.id, info.channel,
+                        { embeds: [await valid.GetEmbed()] }));
                 }
             });
         }
-    }
-
-    IsValidFreeGame(redditPost) {
-        if (redditPost.IsSelf) { return false; }
-        if (BotConfiguration.FreeGameSetup.InvalidTitleMatches.find(x => redditPost.Title.toUpperCase().includes(x))) { return false; }
-
-        return true;
     }
 
     async SendMessage(guildID, channelID, message) {
@@ -80,12 +74,6 @@ export class Choccy {
         console.log('message sent');
     }
 
-    GetFreeGameEmbed(redditPost) {
-        return new EmbedBuilder()
-            .setColor(BotConfiguration.FreeGameSetup.Embed.Color)
-            .setTitle(redditPost.Title);
-    }
-
     RegisterSlashCommands() {
         const rest = new REST().setToken(process.env.BOT_TOKEN);
 
@@ -94,7 +82,7 @@ export class Choccy {
                 await rest.put(
                     (process.env.NODE_ENV || 'development').toLowerCase() === 'production'
                         ? Routes.applicationCommands()
-                        : Routes.applicationGuildCommands(this.ClientID, '822900454714376212'),
+                        : Routes.applicationGuildCommands(this.ClientID, BotConfiguration.DevelopmentGuild),
                     { body: this.Commands.map(command => command.GetBuilder().toJSON()) }
                 );
             } catch (error) {
