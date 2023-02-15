@@ -21,7 +21,9 @@ export const BotConfiguration = new function () {
             { match: 'INDIEGALA', conversion: 'IndieGala' },
             { match: 'BATTLE.NET', conversion: 'Battle.net' },
             { match: 'ITCH.IO', conversion: 'itch.io' },
-            { match: 'GX.GAMES', conversion: 'Opera GX Games' }
+            { match: 'GX.GAMES', conversion: 'Opera GX Games' },
+            { match: 'ORIGIN', conversion: 'Origin' },
+            { match: 'EA', conversion: 'EA' }
         ]
     };
 }

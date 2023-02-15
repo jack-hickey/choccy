@@ -47,7 +47,9 @@ export class FreeGame {
                 .setURL(this.Post.URL)
                 .setTitle(this.Post.Title.substr(this.Post.Title.indexOf(')') + 1).trim())
                 .addFields(
-                    { name: 'Platform', value: this.GetPlatform() }
+                    { name: 'Platform', value: this.GetPlatform() },
+                    { name: 'Something here', value: 'test', inline: true },
+                    { name: 'Something else', value: 'test', inline: true }
                 )
                 .setImage(imageURL));
         });
