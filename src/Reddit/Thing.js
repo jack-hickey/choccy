@@ -1,6 +1,6 @@
-import { ChoccyReddit } from "./RedditRoot.js";
+import { RedditRoot } from "./RedditRoot.js";
 
-export class Thing extends ChoccyReddit {
+export class Thing extends RedditRoot {
     constructor(json) {
         super(json);
 
