@@ -6,8 +6,8 @@ export class RedditEngine {
     }
 
     async GetLatestPost(subreddit, before) {
-        const data = await (await fetch(`${this.FetchPrefix}/${subreddit}/new.json?limit=1&before=${before}`))
-            .json()?.data?.children?.at(0)?.data;
+        const data = (await (await fetch(`${this.FetchPrefix}/${subreddit}/new.json?limit=1&before=${before}&type=link`))
+            .json())?.data?.children?.at(0)?.data;
 
         return data ? new Link(data) : null;
     }

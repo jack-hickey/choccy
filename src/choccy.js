@@ -1,4 +1,4 @@
-import { Client, IntentsBitField, REST, Routes, Events, Collection } from 'discord.js';
+import { Client, IntentsBitField, REST, Routes, Events, Collection, EmbedBuilder } from 'discord.js';
 import Enmap from 'enmap';
 import * as Commands from './Commands/exports/index.js';
 import { BotConfiguration } from './Constants/BotConfiguration.js';
@@ -39,22 +39,42 @@ export class Choccy {
 
         this.Client.login(process.env.BOT_TOKEN);
 
-        setInterval(async () => this.PollFreeGame(), BotConfiguration.FreeGameDelay * 1000);
+        setInterval(async () => this.PollFreeGame(), BotConfiguration.FreeGameSetup.Delay * 1000);
 
         this.RegisterSlashCommands();
     }
 
     async PollFreeGame() {
         const availableGuilds = (await this.Client.guilds.fetch())
-            .filter(guild => this.Client.settings.getValue(guild.id, Settings.FreeGamesChannel) !== Settings.DefaultValue);
+            .map(x => { return { guild: x, channel: this.Client.settings.getValue(x.id, Settings.FreeGamesChannel) } })
+            .filter(info => info.channel !== Settings.DefaultValue);
 
-        if (availableGuilds.size) {
-            this.RedditAPI.GetLatestPost('freegamefindings', this.LastFreeGame).then(post => {
+        if (availableGuilds.length) {
+            this.RedditAPI.GetLatestPost(BotConfiguration.FreeGameSetup.Subreddit, this.LastFreeGame).then(post => {
                 if (post) {
                     this.LastFreeGame = post.Name;
+
+                    availableGuilds.forEach(
+                        async info => await this.SendMessage(info.guild.id, info.channel, { embeds: [this.GetFreeGameEmbed(post)] }));
                 }
             });
         }
+    }
+
+    async SendMessage(guildID, channelID, message) {
+        const guild = await this.Client.guilds.fetch(guildID.toString());
+
+        if (!guild) { return; }
+        if (!channelID) { return; }
+
+        guild.channels.fetch(channelID).then(x => x.send(message));
+        console.log('message sent');
+    }
+
+    GetFreeGameEmbed(redditPost) {
+        return new EmbedBuilder()
+            .setColor(11176191)
+            .setTitle(redditPost.Title);
     }
 
     RegisterSlashCommands() {
