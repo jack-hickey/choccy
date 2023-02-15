@@ -50,12 +50,14 @@ export class Choccy {
             .filter(info => info.channel !== Settings.DefaultValue);
 
         if (availableGuilds.length) {
-            this.RedditAPI.GetLatestPost(BotConfiguration.FreeGameSetup.Subreddit, this.LastFreeGame).then(post => {
-                if (post) {
-                    this.LastFreeGame = post.Name;
+            this.RedditAPI.GetPosts(BotConfiguration.FreeGameSetup.Subreddit, this.LastFreeGame).then(post => {
+                const valid = post.find(x => !x.IsSelf);
+
+                if (valid) {
+                    this.LastFreeGame = valid.Name;
 
                     availableGuilds.forEach(
-                        async info => await this.SendMessage(info.guild.id, info.channel, { embeds: [this.GetFreeGameEmbed(post)] }));
+                        async info => await this.SendMessage(info.guild.id, info.channel, { embeds: [this.GetFreeGameEmbed(valid)] }));
                 }
             });
         }

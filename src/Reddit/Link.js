@@ -85,6 +85,7 @@ export class Link extends RedditRoot {
         this.UserReports = null;
         this.IsOriginalContent = null;
         this.AuthorFlairTemplateID = null;
+        this.LinkFlairTemplateID = null;
         this.ThumbnailWidth = null;
         this.MediaEmbed = null;
         this.TotalAwardsReceived = null;
