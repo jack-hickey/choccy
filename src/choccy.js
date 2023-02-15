@@ -50,8 +50,8 @@ export class Choccy {
             .filter(info => info.channel !== Settings.DefaultValue);
 
         if (availableGuilds.length) {
-            this.RedditAPI.GetPosts(BotConfiguration.FreeGameSetup.Subreddit, this.LastFreeGame).then(post => {
-                const valid = post.find(x => !x.IsSelf);
+            this.RedditAPI.GetPosts(BotConfiguration.FreeGameSetup.Subreddits.join('+'), this.LastFreeGame).then(post => {
+                const valid = post.find(x => this.IsValidFreeGame(x));
 
                 if (valid) {
                     this.LastFreeGame = valid.Name;
@@ -61,6 +61,13 @@ export class Choccy {
                 }
             });
         }
+    }
+
+    IsValidFreeGame(redditPost) {
+        if (redditPost.IsSelf) { return false; }
+        if (BotConfiguration.FreeGameSetup.InvalidTitleMatches.find(x => redditPost.Title.toUpperCase().includes(x))) { return false; }
+
+        return true;
     }
 
     async SendMessage(guildID, channelID, message) {
@@ -75,7 +82,7 @@ export class Choccy {
 
     GetFreeGameEmbed(redditPost) {
         return new EmbedBuilder()
-            .setColor(11176191)
+            .setColor(BotConfiguration.FreeGameSetup.Embed.Color)
             .setTitle(redditPost.Title);
     }
 
