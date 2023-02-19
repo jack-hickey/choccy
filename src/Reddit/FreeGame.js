@@ -1,5 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import { BotConfiguration } from "../Constants/BotConfiguration.js";
+import { Scraper } from "../Scraper.js";
 
 export class FreeGame {
     constructor(post) {
@@ -25,33 +26,32 @@ export class FreeGame {
         return platform;
     }
 
-    async GetImageURL() {
-        const data = await (await fetch(this.Post.URL, { headers: { 'User-Agent': 'request' } })).text();
-
-        return new Promise(resolve => {
-            const element = data.match(/(<meta([^>]+)>)/ig).find(x => x.includes('og:image'));
-
-            resolve(element
-                ? element.substring(element.indexOf('content=') + 9).slice(0, -2)
-                : '');
-        });
-    }
-
     async GetEmbed() {
-        const imageURL = await this.GetImageURL();
+        const parsedURL = new URL(this.Post.URL);
+
+        const metadata = await Scraper.GetMetaData(parsedURL.toString());
+        const domainMetadata = await Scraper.GetMetaData(parsedURL.toString().substring(0, parsedURL.toString().indexOf(parsedURL.hostname) + parsedURL.hostname.length));
 
         return new Promise(resolve => {
-            resolve(new EmbedBuilder()
+            const builder = new EmbedBuilder()
                 .setColor(BotConfiguration.FreeGameSetup.Embed.Color)
                 .setAuthor({ name: 'Free game!' })
                 .setURL(this.Post.URL)
                 .setTitle(this.Post.Title.substr(this.Post.Title.indexOf(')') + 1).trim())
+                .setFooter({ text: 'Found for you by Choccy' })
                 .addFields(
-                    { name: 'Platform', value: this.GetPlatform() },
-                    { name: 'Something here', value: 'test', inline: true },
-                    { name: 'Something else', value: 'test', inline: true }
-                )
-                .setImage(imageURL));
+                    { name: 'Platform', value: this.GetPlatform() }
+                );
+
+            if (metadata['og:image']) {
+                builder.setImage(metadata['og:image']);
+            }
+
+            if (domainMetadata['og:image']) {
+                builder.setThumbnail(domainMetadata['og:image']);
+            }
+
+            resolve(builder);
         });
     }
 }

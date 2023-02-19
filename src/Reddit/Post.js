@@ -29,6 +29,7 @@ export class Post extends RedditRoot {
         this.RemovalReason = null;
         this.NumReports = null;
         this.ModReasonBy = null;
+        this.MediaMetadata = null;
         this.AuthorIsBlocked = null;
         this.SubredditID = null;
         this.Distinguished = null;
