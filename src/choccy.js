@@ -51,7 +51,7 @@ export class Choccy {
             .filter(info => info.channel !== Settings.DefaultValue);
 
         if (availableGuilds.length) {
-            this.RedditAPI.GetPosts(BotConfiguration.FreeGameSetup.Subreddits.join('+'), this.LastFreeGame).then(post => {
+            this.RedditAPI.GetPosts(BotConfiguration.FreeGameSetup.Subreddit, this.LastFreeGame).then(post => {
                 const valid = post.map(x => new FreeGame(x)).find(x => x.IsValid());
 
                 if (valid) {

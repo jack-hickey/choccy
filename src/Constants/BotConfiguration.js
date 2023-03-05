@@ -5,7 +5,7 @@ export const BotConfiguration = new function () {
     this.FreeGameSetup = {
         // Time (in seconds) to wait before checking free games again
         Delay: 600,
-        Subreddits: ['freegamefindings'],
+        Subreddit: 'freegamefindings',
         InvalidTitleMatches: ['(OTHER)', '(DLC)'],
 
         Embed: {

@@ -39,6 +39,7 @@ export class FreeGame {
                 .setURL(this.Post.URL)
                 .setTitle(this.Post.Title.substr(this.Post.Title.indexOf(')') + 1).trim())
                 .setFooter({ text: 'Found for you by Choccy' })
+                .setTimestamp()
                 .addFields(
                     { name: 'Platform', value: this.GetPlatform() }
                 );
