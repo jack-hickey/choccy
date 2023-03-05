@@ -1,5 +1,4 @@
 export const BotConfiguration = new function () {
-    this.DevelopmentGuild = '822900454714376212';
     this.Theme = '#97DBA4';
 
     this.FreeGameSetup = {

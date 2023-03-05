@@ -10,8 +10,8 @@ export class Choccy {
     constructor() {
         this.Commands = Object.values(Commands).map(command => new command());
 
-
-        this.ClientID = '1014536625423908996';
+        this.Token = this.IsProductionBot() ? process.env.BOT_TOKEN : process.env.BOT_TOKEN_DEVELOPMENT;
+        this.ClientID = !this.IsProductionBot() ? process.env.BOT_CLIENT_DEVELOPMENT : process.env.BOT_CLIENT;
         this.LastFreeGame = '';
 
         this.Client = new Client({
@@ -38,11 +38,15 @@ export class Choccy {
         this.Client.on(Events.InteractionCreate, async interaction => this.onInteractionCreate(interaction));
         this.Client.on(Events.GuildDelete, async guild => this.onGuildDelete(guild));
 
-        this.Client.login(process.env.BOT_TOKEN);
+        this.Client.login(this.Token);
 
         setInterval(async () => this.PollFreeGame(), BotConfiguration.FreeGameSetup.Delay * 1000);
 
         this.RegisterSlashCommands();
+    }
+
+    IsProductionBot(){
+        return (process.env.NODE_ENV || 'development').toLowerCase() !== 'development';
     }
 
     async PollFreeGame() {
@@ -74,14 +78,12 @@ export class Choccy {
     }
 
     RegisterSlashCommands() {
-        const rest = new REST().setToken(process.env.BOT_TOKEN);
+        const rest = new REST().setToken(this.Token);
 
         (async () => {
             try {
                 await rest.put(
-                    (process.env.NODE_ENV || 'development').toLowerCase() === 'production'
-                        ? Routes.applicationCommands()
-                        : Routes.applicationGuildCommands(this.ClientID, BotConfiguration.DevelopmentGuild),
+                    Routes.applicationCommands(this.ClientID),
                     { body: this.Commands.map(command => command.GetBuilder().toJSON()) }
                 );
             } catch (error) {
