@@ -32,7 +32,7 @@ export class FreeGameChannelCommand extends Command {
         return builder;
     }
 
-    Action(interaction, client) {
+    async Action(interaction, client) {
         switch (interaction.options.getSubcommand()) {
             case FreeGameChannelCommand.SubCommands.Channel: return this.SetChannel(interaction, client);
             case FreeGameChannelCommand.SubCommands.Config: return this.DisplayConfig(interaction, client);

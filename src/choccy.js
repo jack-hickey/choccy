@@ -71,7 +71,6 @@ export class Choccy {
         if (!channelID) { return; }
 
         guild.channels.fetch(channelID).then(x => x.send(message));
-        console.log('message sent');
     }
 
     RegisterSlashCommands() {
@@ -98,7 +97,7 @@ export class Choccy {
         if (!interaction.isChatInputCommand()) { return; }
         if (!command) { return; }
 
-        command.Action(interaction, this.Client);
+        await command.Action(interaction, this.Client);
     }
 
     // Raised when the bot is kicked or leaves
